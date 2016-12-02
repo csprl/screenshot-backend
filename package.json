@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/casperlofgren/screenshot-backend/issues"
   },
-  "homepage": "https://github.com/casperlofgren/screenshot-backend#readme"
+  "homepage": "https://github.com/casperlofgren/screenshot-backend#readme",
+  "dependencies": {
+    "express": "^4.14.0"
+  }
 }
