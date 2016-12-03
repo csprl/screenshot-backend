@@ -4,6 +4,7 @@
 var config = require("./config.json");
 var auth = require("./auth.json");
 
+var path = require("path");
 var mime = require("mime");
 var randomstring = require("randomstring");
 
@@ -66,7 +67,7 @@ exports.multerStorage = {
         else {
             dir = req.dirs.files;
         }
-        cb(null, dir + "\\" + randomstring.generate({"length": 4, "capitalization": "lowercase"}) + "." + mime.extension(file.mimetype));
+        cb(null, dir + path.sep + randomstring.generate({"length": 4, "capitalization": "lowercase"}) + "." + mime.extension(file.mimetype));
     }
 }
 
