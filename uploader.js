@@ -2,18 +2,18 @@
 //  Image uploader code
 
 var config = require("./config.json");
-var users = require("./users.json");
+var auth = require("./auth.json");
 
 var mime = require("mime");
 var randomstring = require("randomstring");
 
 function checkCredentials(creds, done) {
     if ((typeof creds.username !== 'undefined' && creds.username) && (typeof creds.password !== 'undefined' && creds.password)) {
-        usersLeft = users.users.length;
-        for (i in users.users) {
-            if (users.users[i].username == creds.username) {
-                if (users.users[i].password == creds.password) {
-                    return done(null, users.users[i].dirs);
+        usersLeft = auth.users.length;
+        for (i in auth.users) {
+            if (auth.users[i].username == creds.username) {
+                if (auth.users[i].password == creds.password) {
+                    return done(null, auth.users[i].dirs);
                 }
                 else {
                     return done("wrong password", null);
@@ -26,10 +26,10 @@ function checkCredentials(creds, done) {
         }
     }
     else if (config.gyazoenabled && (typeof creds.key !== "undefined" && creds.key)) {
-        keysLeft = users.keys.length;
-        for (i in users.keys) {
-            if (users.keys[i].key == creds.key) {
-                dir = users.keys[i].uploaddir;
+        keysLeft = auth.keys.length;
+        for (i in auth.keys) {
+            if (auth.keys[i].key == creds.key) {
+                dir = auth.keys[i].uploaddir;
                 return done(null, {"images": dir, "videos": dir, "files": dir});
             }
 
@@ -54,7 +54,7 @@ exports.save = function(req, next) {
 
 exports.multerStorage = {
     destination: function(req, file, cb) {
-        cb(null, "uploads");
+        cb(null, config.uploaddir);
     },
     filename: function(req, file, cb) {
         if (file.mimetype.indexOf("image/") > -1) {
