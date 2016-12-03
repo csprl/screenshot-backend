@@ -24,13 +24,13 @@ app.get("/", function(req, res) {
     res.send("screenshot-backend");
 });
 
-app.post("/upload", upload.single("screenshot"), function(req, res) { // sharex upload
+app.post("/upload", upload.single("file"), function(req, res) { // sharex upload
     uploader.save(req, function(response) {
         res.send(response);
     });
 });
 
-app.post("/upload/:key", upload.single("screenshot"), function(req, res) { // gyazowin upload
+app.post("/upload/:key", upload.single("file"), function(req, res) { // gyazowin upload
     uploader.save(req, function(response) {
         res.send(response);
     });
