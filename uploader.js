@@ -23,7 +23,7 @@ function checkCredentials(username, password, done) {
 }
 
 exports.save = function(req, next) {
-    if (req.validupload == true) {
+    if (req.validupload) {
         next(config.domain + "/" + req.file.filename.replace("\\", "/"));
     }
     else {
@@ -34,11 +34,15 @@ exports.save = function(req, next) {
 exports.fileFilter = function(req, file, cb) {
     checkCredentials(req.body.username, req.body.password, function(status, dirs) {
         if (status) {
-            req.validupload = false;
             cb(null, false);
         }
         else {
             //console.log(file);
+
+            if (config.allowedmimetypes.indexOf(file.mimetype) === -1) {
+                return cb(null, false);
+            }
+
             req.dirs = dirs;
             req.validupload = true;
             cb(null, true);
