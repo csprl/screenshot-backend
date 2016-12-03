@@ -39,7 +39,16 @@ exports.multerStorage = {
         cb(null, "uploads");
     },
     filename: function(req, file, cb) {
-        cb(null, req.dirs.images + "\\" + randomstring.generate({"length": 4, "capitalization": "lowercase"}) + "." + mime.extension(file.mimetype));
+        if (file.mimetype.indexOf("image/") > -1) {
+            dir = req.dirs.images;
+        }
+        else if (file.mimetype.indexOf("video/") > -1) {
+            dir = req.dirs.videos;
+        }
+        else {
+            dir = req.dirs.files;
+        }
+        cb(null, dir + "\\" + randomstring.generate({"length": 4, "capitalization": "lowercase"}) + "." + mime.extension(file.mimetype));
     }
 }
 
