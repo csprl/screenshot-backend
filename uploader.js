@@ -4,6 +4,7 @@
 var config = require("./config.json");
 var auth = require("./auth.json");
 
+var logger = require("./logger");
 var path = require("path");
 var mime = require("mime");
 var randomstring = require("randomstring");
@@ -78,6 +79,7 @@ exports.fileFilter = function(req, file, cb) {
         }
         else {
             if (config.allowedmimetypes.indexOf(file.mimetype) === -1) {
+                logger.log("warn", "Mimetype " + file.mimetype + " not allowed!");
                 return cb(null, false);
             }
 
