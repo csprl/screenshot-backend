@@ -9,6 +9,11 @@ var path = require("path");
 
 usersLeft = auth.users.length + auth.keys.length;
 foldersCreated = 0;
+
+if (!fs.existsSync(__dirname + path.sep + uploadfolder)) {
+    fs.mkdirSync(__dirname + path.sep + uploadfolder);
+}
+
 for (i in auth.users) {
     if (!fs.existsSync(__dirname + path.sep + uploadfolder + path.sep + auth.users[i].dirs.images)) {
         foldersCreated++;
