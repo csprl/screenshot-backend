@@ -8,6 +8,9 @@ var express = require("express");
 var morgan = require("morgan");
 var bodyParser = require("body-parser");
 
+// Winston logger
+var logger = require("./logger");
+
 // Multer
 var multer  = require("multer");
 var upload = multer({ storage: multer.diskStorage(uploader.multerStorage), fileFilter: uploader.fileFilter });
@@ -38,5 +41,5 @@ app.post("/upload/:key", upload.single("file"), function(req, res) { // gyazowin
 
 // Express server
 app.listen(config.port, function() {
-    console.log("App listening on port " + config.port);
+    logger.log("info", "App listening on port " + config.port);
 });
