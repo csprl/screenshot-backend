@@ -4,23 +4,13 @@
 var config = require("./config.json");
 
 var uploader = require("./uploader");
-var mime = require("mime");
-var randomstring = require("randomstring");
 var express = require("express");
 var morgan = require("morgan");
 var bodyParser = require("body-parser");
 
 // Multer
 var multer  = require("multer");
-var storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, "uploads");
-    },
-    filename: function(req, file, cb) {
-        cb(null, req.dirs.images + "\\" + randomstring.generate({"length": 4, "capitalization": "lowercase"}) + "." + mime.extension(file.mimetype));
-    }
-});
-var upload = multer({ storage: storage, fileFilter: uploader.fileFilter });
+var upload = multer({ storage: multer.diskStorage(uploader.multerStorage), fileFilter: uploader.fileFilter });
 
 // Express app
 var app = express();

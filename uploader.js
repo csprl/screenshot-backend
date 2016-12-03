@@ -4,6 +4,9 @@
 var config = require("./config.json");
 var users = require("./users.json");
 
+var mime = require("mime");
+var randomstring = require("randomstring");
+
 function checkCredentials(username, password, done) {
     usersLeft = users.users.length;
     for (i in users.users) {
@@ -28,6 +31,15 @@ exports.save = function(req, next) {
     }
     else {
         next("fail");
+    }
+}
+
+exports.multerStorage = {
+    destination: function(req, file, cb) {
+        cb(null, "uploads");
+    },
+    filename: function(req, file, cb) {
+        cb(null, req.dirs.images + "\\" + randomstring.generate({"length": 4, "capitalization": "lowercase"}) + "." + mime.extension(file.mimetype));
     }
 }
 
