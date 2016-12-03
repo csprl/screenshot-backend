@@ -76,8 +76,6 @@ exports.fileFilter = function(req, file, cb) {
             cb(null, false);
         }
         else {
-            //console.log(file);
-
             if (config.allowedmimetypes.indexOf(file.mimetype) === -1) {
                 return cb(null, false);
             }
