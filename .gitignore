@@ -48,4 +48,4 @@ jspm_packages
 
 # Config and user file
 config.json
-auth.json
+users.json
