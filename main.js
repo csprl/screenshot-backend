@@ -29,7 +29,7 @@ const upload = multer({
                 dir = req._user.dirs[file.mimetype];
             }
             else {
-                dir = "random";
+                dir = "";
             }
             dir = path.resolve(config.uploaddir, dir);
 
@@ -63,7 +63,7 @@ app.post("/", authentication, (req, res) => { // sharex upload
     upload.single("data")(req, res, err => {
         if (err) return res.status(500).end();
 
-        res.send(config.baseurl + path.relative(path.resolve(config.uploaddir), req.file.path).replace(/\\/, "/"));
+        res.send(config.baseurl + path.relative(path.resolve(config.uploaddir), req.file.path).split(path.sep).join("/"));
     });
 });
 
