@@ -17,7 +17,7 @@ var config appConfig
 func main() {
 	// Load config
 	if err := loadConfig("config.json"); err != nil {
-		log.Fatalf("failed to load users: %v", err)
+		log.Fatalf("failed to load config: %v", err)
 	}
 
 	// Create upload directory if it doesn't exist
@@ -32,7 +32,7 @@ func main() {
 
 	// Upload route
 	app.Post("/", func(c *fiber.Ctx) error {
-		user := c.Locals("user").(configUser)
+		user := c.Locals("user").(appUser)
 
 		// Get file from form
 		file, err := c.FormFile("data")

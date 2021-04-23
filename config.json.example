@@ -1,0 +1,6 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "users": [
+    {"token": "<token>", "prefix": ""}
+  ]
+}

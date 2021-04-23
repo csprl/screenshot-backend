@@ -1,11 +1,11 @@
 package main
 
-type configUser struct {
+type appUser struct {
 	Token  string
 	Prefix string
 }
 
 type appConfig struct {
 	BaseURL string
-	Users   []configUser
+	Users   []appUser
 }
