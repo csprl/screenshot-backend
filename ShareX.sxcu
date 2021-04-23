@@ -1,9 +1,0 @@
-{
-  "Name": "screenshot-backend",
-  "DestinationType": "ImageUploader, TextUploader, FileUploader",
-  "RequestURL": "https://127.0.0.1:3000",
-  "FileFormName": "data",
-  "Headers": {
-    "Token": "<token>"
-  }
-}
