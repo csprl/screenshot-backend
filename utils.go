@@ -4,7 +4,7 @@ import "math/rand"
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-var allowedMIMETypes = []string{"image/png", "image/jpeg", "text/plain", "video/mp4", "image/gif"}
+var fileTypes = map[string]string{"image/png": ".png", "image/jpeg": ".jpg", "text/plain": ".txt", "video/mp4": ".mp4", "image/gif": ".gif"}
 
 func randomString(n int) string {
 	b := make([]byte, n)
@@ -14,11 +14,10 @@ func randomString(n int) string {
 	return string(b)
 }
 
-func allowedMIME(mime string) bool {
-	for _, m := range allowedMIMETypes {
-		if m == mime {
-			return true
-		}
+func getFileExtensionByType(fileType string) string {
+	ext, ok := fileTypes[fileType]
+	if ok {
+		return ext
 	}
-	return false
+	return ""
 }

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"mime"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -40,18 +39,15 @@ func main() {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
-		// Validate mime type
+		// Get file extension by Content-Type
 		contentType := file.Header.Get(fiber.HeaderContentType)
-		if !allowedMIME(contentType) {
+		ext := getFileExtensionByType(contentType)
+		if ext == "" {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
-		// Generate file name
-		ext, err := mime.ExtensionsByType(contentType)
-		if err != nil || len(ext) == 0 {
-			return c.SendStatus(fiber.StatusBadRequest)
-		}
-		fileName := user.Prefix + randomString(4) + ext[0]
+		// Build final file name
+		fileName := user.Prefix + randomString(4) + ext
 
 		// Save file
 		if err := c.SaveFile(file, fmt.Sprintf("%s/%s", uploadPath, fileName)); err != nil {
