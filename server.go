@@ -24,7 +24,9 @@ func main() {
 		log.Fatalf("failed to create upload directory: %v", err)
 	}
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 50 * 1024 * 1024,
+	})
 
 	// Authentication middleware
 	app.Use(authenticate)
