@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 const uploadPath = "./uploads"
@@ -41,6 +42,9 @@ func main() {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
+		// Get filename format
+		fileNameFormat := c.FormValue("nameformat")
+
 		// Get file extension by Content-Type
 		contentType := file.Header.Get(fiber.HeaderContentType)
 		ext := getFileExtensionByType(contentType)
@@ -49,7 +53,12 @@ func main() {
 		}
 
 		// Build final file name
-		fileName := user.Prefix + randomString(4) + ext
+		var fileName string
+		if fileNameFormat == "simple" {
+			fileName = user.Prefix + randomString(5) + ext
+		} else {
+			fileName = user.Prefix + uuid.NewString() + ext
+		}
 
 		// Save file
 		if err := c.SaveFile(file, fmt.Sprintf("%s/%s", uploadPath, fileName)); err != nil {
