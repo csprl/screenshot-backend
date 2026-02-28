@@ -1,100 +1,96 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/extractors"
+	"github.com/gofiber/fiber/v3/middleware/keyauth"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
-const uploadPath = "./uploads"
+var baseUrl string
+var hashedApiKey string
+var maxBodySize int = 50 // default to 50MB
 
-var config appConfig
+var fileTypeMap = map[string]string{"image/png": ".png", "image/jpeg": ".jpg", "text/plain": ".txt", "video/mp4": ".mp4", "image/gif": ".gif"}
 
-func main() {
-	// Load config
-	if err := loadConfig("config.json"); err != nil {
-		log.Fatalf("failed to load config: %v", err)
+const uploadBasePath = "./uploads"
+
+func init() {
+	baseUrl = strings.TrimSuffix(strings.TrimSpace(os.Getenv("BASE_URL")), "/")
+	hashedApiKey = strings.TrimSpace(os.Getenv("API_KEY"))
+	maxBodySizeStr := strings.TrimSpace(os.Getenv("MAX_BODY_SIZE"))
+
+	if baseUrl == "" || hashedApiKey == "" {
+		log.Fatalln("API_KEY or BASE_URL not set")
 	}
 
+	if maxBodySizeStr != "" {
+		parsedMaxBodySize, err := strconv.Atoi(maxBodySizeStr)
+		if err != nil {
+			log.Fatalf("failed to parse MAX_BODY_SIZE: %v", err)
+		}
+
+		maxBodySize = parsedMaxBodySize
+	}
+}
+
+func main() {
 	// Create upload directory if it doesn't exist
-	if err := os.MkdirAll(uploadPath, 0755); err != nil {
+	if err := os.MkdirAll(uploadBasePath, 0755); err != nil {
 		log.Fatalf("failed to create upload directory: %v", err)
 	}
 
 	app := fiber.New(fiber.Config{
-		BodyLimit: 50 * 1024 * 1024,
+		BodyLimit: maxBodySize * 1024 * 1024,
 	})
 
-	// Authentication middleware
-	app.Use(authenticate)
+	// Set up auth
+	app.Use(keyauth.New(keyauth.Config{
+		Extractor: extractors.FromAuthHeader("Bearer"),
+		Validator: func(c fiber.Ctx, key string) (bool, error) {
+			if bcrypt.CompareHashAndPassword([]byte(hashedApiKey), []byte(key)) == nil {
+				return true, nil
+			}
+
+			return false, keyauth.ErrMissingOrMalformedAPIKey
+		},
+	}))
 
 	// Upload route
-	app.Post("/", func(c *fiber.Ctx) error {
-		user := c.Locals("user").(appUser)
-
+	app.Post("/", func(c fiber.Ctx) error {
 		// Get file from form
 		file, err := c.FormFile("data")
 		if err != nil {
+			log.Printf("failed to resolve file: %v\n", err)
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
-
-		// Get filename format
-		fileNameFormat := c.FormValue("nameformat")
 
 		// Get file extension by Content-Type
-		contentType := file.Header.Get(fiber.HeaderContentType)
-		ext := getFileExtensionByType(contentType)
-		if ext == "" {
+		contentTypeHeader := file.Header.Get(fiber.HeaderContentType)
+		fileExtension, ok := fileTypeMap[contentTypeHeader]
+		if !ok {
+			log.Printf("failed to resolve content type '%s'\n", contentTypeHeader)
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
-		// Build final file name
-		var fileName string
-		if fileNameFormat == "simple" {
-			fileName = user.Prefix + randomString(5) + ext
-		} else {
-			fileName = user.Prefix + uuid.NewString() + ext
-		}
+		// Build file name
+		fileName := uuid.NewString() + fileExtension
 
 		// Save file
-		if err := c.SaveFile(file, fmt.Sprintf("%s/%s", uploadPath, fileName)); err != nil {
+		if err := c.SaveFile(file, fmt.Sprintf("%s/%s", uploadBasePath, fileName)); err != nil {
+			log.Printf("failed to write to file: %v\n", err)
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
-		return c.SendString(fmt.Sprintf("%s/%s", config.BaseURL, fileName))
+		return c.SendString(fmt.Sprintf("%s/%s", baseUrl, fileName))
 	})
 
 	log.Fatal(app.Listen(":3000"))
-}
-
-func authenticate(c *fiber.Ctx) error {
-	// Get Authorization header
-	auth := c.Get(fiber.HeaderAuthorization)
-	if len(auth) == 0 {
-		return c.SendStatus(fiber.StatusUnauthorized)
-	}
-
-	// Find user
-	for _, user := range config.Users {
-		if user.Token == auth {
-			c.Locals("user", user)
-			return c.Next()
-		}
-	}
-
-	return c.SendStatus(fiber.StatusUnauthorized)
-}
-
-func loadConfig(filename string) error {
-	f, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	return json.NewDecoder(f).Decode(&config)
 }

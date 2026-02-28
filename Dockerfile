@@ -1,15 +1,15 @@
 # Build stage
-FROM golang:alpine as builder
+FROM golang:1.26-alpine3.23 as builder
 
-WORKDIR /build/
+WORKDIR /build
 COPY . .
 
-RUN go build -ldflags="-s -w" -o app .
+RUN go build -ldflags="-s -w" -o screenshot-backend .
 
 # Runtime stage
-FROM alpine
+FROM alpine:3.23
 
-WORKDIR /app/
-COPY --from=builder /build/app .
+WORKDIR /app
+COPY --from=builder /build/screenshot-backend .
 
-CMD ["./app"]
+ENTRYPOINT ["/app/screenshot-backend"]

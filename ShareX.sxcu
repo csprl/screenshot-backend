@@ -1,11 +1,11 @@
 {
-  "Version": "13.4.0",
+  "Version": "19.0.2",
   "Name": "screenshot-backend",
   "DestinationType": "ImageUploader, TextUploader, FileUploader",
   "RequestMethod": "POST",
-  "RequestURL": "http://127.0.0.1:3000",
+  "RequestURL": "http://localhost:3000",
   "Headers": {
-    "Authorization": "<user token>"
+    "Authorization": "Bearer token"
   },
   "Body": "MultipartFormData",
   "FileFormName": "data"
